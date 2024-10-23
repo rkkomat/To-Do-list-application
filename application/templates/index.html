@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f1f1fc;
+      margin: 0;
+      padding: 50px;
+    }
+    h1 {
+      text-align: center;
+      color: #4a4a4a;
+    }
+    .todo-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .todo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .add-task-btn {
+      background-color: #5862f8;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .add-task-btn:hover {
+      background-color: #4851d7;
+    }
+    .task-list {
+      list-style: none;
+      padding: 0;
+    }
+    .task-item {
+      background-color: #f4f4f4;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-item.completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .task-info {
+      display: flex;
+      align-items: center;
+    }
+    .task-info span {
+      margin-left: 10px;
+    }
+    .task-buttons {
+      display: flex;
+    }
+    .task-buttons button {
+      background: none;
+      border: none;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    .task-buttons button:hover {
+      opacity: 0.7;
+    }
+    .task-buttons button img {
+      width: 20px;
+      height: 20px;
+    }
+    .filter-select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    .checkbox {
+      width: 20px;
+      height: 20px;
+    }
+    .task-date {
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>TODO LIST</h1>
+  <div class="todo-container">
+    <form method="POST">
+      <input type="text" name="task1" placeholder="Enter a new task" required>
+      <button class="add-task-btn" type="submit">Add Task</button>
+    </form>
+    <ul class="task-list">
+      {% for task in tasks %}
+      <li class="task-item {% if task.completed %}completed{% endif %}">
+        {% if not task.editing %}
+          <div class="task-info">
+            <input type="checkbox" class="checkbox" 
+                   onchange="document.getElementById('complete-form-{{ task.id }}').submit();" 
+                   {% if task.completed %} checked {% endif %}>
+            <span>{{ task.task_col }}</span>
+          </div>
+          <div>
+            <div class="task-date">{{ task.date_created.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+          </div>
+          <div class="task-buttons">
+            <form action="{{ url_for('views.complete_task', id=task.id) }}" method="POST" id="complete-form-{{ task.id }}" style="display: none;"></form>
+            <form action="{{ url_for('views.edit_task', id=task.id) }}" method="POST" style="display: inline;">
+              <button type="submit" class="edit-btn">
+                <img src="https://img.icons8.com/material-rounded/24/000000/edit.png" alt="Edit">
+              </button>
+            </form>
+            <form action="{{ url_for('views.delete_task', id=task.id) }}" method="POST" style="display: inline;">
+              <button class="delete-btn" type="submit">
+                <img src="https://img.icons8.com/material-rounded/24/000000/delete.png" alt="Delete">
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <form action="{{ url_for('views.update_task', id=task.id) }}" method="POST" style="display: inline;">
+            <div class="task-info">
+              <input type="text" name="task_col" value="{{ task.task_col }}">
+            </div>
+            <div class="task-buttons">
+              <button type="submit" class="save-btn">Save</button>
+            </div>
+          </form>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    
+  </div>
+</body>
+</html>
